@@ -1,0 +1,9 @@
+.Sidepanel{
+    display:inline-block;
+}
+
+#map{
+    display: inline-block;
+    width: 75%;
+    height: 400px;
+}

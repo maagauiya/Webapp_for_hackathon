@@ -1,0 +1,182 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'hackapp/css/index.css' %}"/>
+    <script type="text/javascript" src="https://maps.api.2gis.ru/2.0/loader.js?pkg=full"></script>
+    <!--<script type="text/javascript">
+        var map;
+
+        DG.then(function () {
+            map = DG.map('map', {
+            center: [54.98, 82.89],
+            zoom: 13
+        });
+
+        DG.marker([54.98, 82.89]).addTo(map).bindPopup('Вы кликнули по мне!');
+        });-->
+    </script>
+</head>
+<body>
+    <div class="Sidepanel">
+        <h2>Паспортные данные</h2>
+        {% for message in user %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" id="lname" name="lname" placeholder="Фамилия" value= {{message.surname}}><br>
+            <input type="text" id="fname" name="fname" placeholder="Имя" value= {{message.name}}><br>
+            <input type="text" id="otec" name="otec" placeholder="Отчество" value= {{message.father_name}}><br>
+            <input type="text" id="iin" name="iin" placeholder="ИИН" value= {{message.serial_id}}><br>
+        <h2>Адресные данные</h2>
+            <input type="text" id="city" name="city" placeholder="Город" value={{message.city}}><br>
+            <input type="text" id="ulica" name="ulica" placeholder="Улица" value="{{message.street}}"><br>
+            <input type="text" id="house" name="house" placeholder="Номер дома"value= {{message.home_n}}><br>
+            <input type="text" id="kvnum" name="kvnum" placeholder="Номер квартиры(если есть)" value= {{message.flat_n}}><br>
+        <h2>Дополнительно</h2>
+            <input type="text" id="kadastr" name="kadastr" placeholder="Кадастровый номер" value= {{message.cad_n}}><br>
+            <input type="text" id="s" name="s" placeholder="Площадь земельного участка" value= {{message.area_n}}><br>
+            <input type="text" id="dopl" name="dopl" placeholder="Дополнительные данные" value= {{message.addi_info }}><br>
+            <input type="hidden" id="lat" name="lat" style="display: none !important;">
+            <input type="hidden" id="lng" name="lng" style="display: none !important;">
+            <input type="submit" class="btn btn-info d1" value="Сохранить анкету" name="update">
+        </form>
+        {% endfor %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-info d1" value="Удалить" name="delete">
+        </form>
+        <button type="button" id="choose">Выбрать</button> 
+        <button type="button" id="otmena">Отмена</button> <br>
+
+
+    
+    </div>
+    <div id="map"></div>
+    <a href="{% url 'list'%}"><button type="button" id="choose" style="display: inline-block;">Назад к списку анкет</button></a>
+        
+        
+    <!--<div id="map" style="width:500px; height:400px"></div>-->
+    <script>
+        var data = eval(JSON.parse("{{ user2 | escapejs }}"));
+        var marker = false;
+    function initMap() {
+        
+        var options = {
+                zoom: 18,
+                center: {
+                    lat: parseFloat(data[0]['fields'].lat), lng: parseFloat(data[0]['fields'].lng)
+                },
+                streetViewControl: false, 
+                mapTypeId: "satellite",
+            }
+        var map = new google.maps.Map(document.getElementById('map'), options)
+        var city = document.getElementById('city');
+        var ulica = document.getElementById('ulica');
+        var house = document.getElementById('house');
+
+        document.getElementById("otmena").onclick = function() {
+            document.getElementById('city').disabled = false;
+            city.value="";
+            document.getElementById('ulica').disabled = false;
+            ulica.value="";
+            document.getElementById('house').disabled = false;
+            house.value="";
+
+        }
+        
+        //var map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
+        var geocoder = new google.maps.Geocoder();
+        //var myLatlng = new google.maps.LatLng(41.38, 2.18);
+        google.maps.event.addListener(map, 'click', function(event) {
+            if (marker){
+                marker.setMap(null);
+            }
+                
+
+            marker = new google.maps.Marker({
+                position: event.latLng, 
+                map: map
+            });
+        });
+        console.log(data[0]['fields'].lat)
+        addMarker();
+        function addMarker() {
+                var marker = new google.maps.Marker({
+                position: {
+                    lat: parseFloat(data[0]['fields'].lat), lng: parseFloat(data[0]['fields'].lng)
+                },
+                map: map,
+                icon: {
+                    url: "https://img.icons8.com/color/100/000000/marker--v1.png",
+                    scaledSize: new window.google.maps.Size(20, 20)}
+                }) 
+
+            }
+
+        
+
+        google.maps.event.addListener(map, 'click', function(event) {
+        geocoder.geocode({
+            'latLng': event.latLng
+        }, function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+            if (results[0]) {
+                document.getElementById("lat").setAttribute('value', parseFloat(event.latLng.lat()))
+                document.getElementById("lng").setAttribute('value', parseFloat(event.latLng.lng()))
+                document.getElementById("choose").onclick = function() {
+                for (let i = 0; i < results[0].address_components.length; i++) {
+                    //document.getElementById("choose").onclick = function() {
+                        if(results[0].address_components[i]["types"][0] == "locality") {  
+                            // city.value = results[0].address_components[i]["long_name"];
+                            // document.getElementById('city').="kkkk"
+                            document.getElementById('city').setAttribute('value',results[0].address_components[i]["long_name"]);
+                            document.getElementById('city').readOnly = true;
+                            
+                        }
+                        if(results[0].address_components[i]["types"][0] == "route") { 
+                            document.getElementById('ulica').setAttribute('value',results[0].address_components[i]["long_name"]);
+                            document.getElementById('city').readOnly = true;
+
+                            
+                            // ulica.value = results[0].address_components[i]["long_name"];
+                            // document.getElementById('ulica').disabled = true;
+                            
+                        }
+                        if(results[0].address_components[i]["types"][0] == "street_number") {
+
+                            house.value = results[0].address_components[i]["long_name"];
+                            document.getElementById('city').readOnly = true;
+
+                            // document.getElementById('house').disabled = true;
+                            
+                        }
+                    //}
+                    
+                    
+                }}
+                
+            }
+            }
+        });
+});
+    }
+        // var options = {
+        //     zoom: 10,
+        //     center: {
+        //         lat: 49.838322, lng: 73.115601
+        //     },
+        //     streetViewControl: false, 
+        //     mapTypeId: "satellite",
+        //     }}
+    </script>
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8gYHQggRVm5HmlLmPy4MQeyQ59B0AVIY&callback=initMap&v=weekly"
+       
+    ></script>
+</body>
+
+</html>
