@@ -2,7 +2,6 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from .models import*
 from django.core import serializers
-# Create your views here.
 def index(request):
     if request.POST.get('save'):
         name=request.POST.get("fname") 

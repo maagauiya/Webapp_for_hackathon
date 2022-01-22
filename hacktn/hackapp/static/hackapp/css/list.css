@@ -1,0 +1,10 @@
+.tt{
+    text-decoration: none !important;
+    color: black !important;
+}
+.tt:hover{ 
+    color: darkblue !important;
+}
+/* .btn .btn-outline-success:hover { 
+  color: red !important;
+} */

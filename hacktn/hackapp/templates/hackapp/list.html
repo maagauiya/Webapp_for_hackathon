@@ -1,6 +1,8 @@
+{%load static%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="{% static 'hackapp/css/list.css' %}"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,9 +10,12 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="{% url 'main page'%}"><button type="button" class="btn btn-outline-secondary">Secondary</button></a>
-    <table class="table table-responsive table-bordered">
-        <thead>
+  
+   <center>
+    <a href="{% url 'main page'%}"><button type="button"  style="margin: 1vh !important ;" class="btn btn-outline-dark ">Создать анкету</button></a>
+   </center>
+    <table class="table table-responsive table-hover  table-striped table-bordered">
+        <thead class="table-dark">
           <tr>
             <th scope="col">№</th>
             <th scope="col">Ф.И.О владельца анкеты</th>
@@ -23,10 +28,10 @@
             {% for message in user %}
             <tr>
                 <th scope="row">{{ forloop.counter }}</th>
-                <td><a href="{% url 'pageofuser' message.pk%}">{{message.surname}} {{message.name}} {{message.father_name}}</a></td>
-                <td>{{message.cad_n}}</td>
-                <td>{{message.area_n}}</td>
-                <td>{{message.city}}, {{message.street}}, {{message.home_n}}, {{message.flat_n}}</td>
+                <td class='text-break'><a class="tt" href="{% url 'pageofuser' message.pk%}">{{message.surname}} {{message.name}} {{message.father_name}}</a></td>
+                <td class='text-break'>{{message.cad_n}}</td>
+                <td class='text-break'>{{message.area_n}}</td>
+                <td class='text-break'>{{message.city}}, {{message.street}}, {{message.home_n}}, {{message.flat_n}}</td>
               </tr>
             {% endfor %}
           <tr>
